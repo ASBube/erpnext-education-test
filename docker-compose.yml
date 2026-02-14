@@ -1,9 +1,6 @@
-version: "3.8"
-
 services:
   mariadb:
     image: mariadb:10.6
-    container_name: mariadb
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: root
@@ -12,12 +9,10 @@ services:
 
   redis:
     image: redis:7
-    container_name: redis
     restart: always
 
   erpnext:
     image: frappe/erpnext:v15
-    container_name: erpnext
     depends_on:
       - mariadb
       - redis
