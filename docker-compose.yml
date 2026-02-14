@@ -1,24 +1,41 @@
 version: "3.8"
 
 services:
+  mariadb:
+    image: mariadb:10.6
+    container_name: mariadb
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+    volumes:
+      - mariadb-data:/var/lib/mysql
+
+  redis:
+    image: redis:7
+    container_name: redis
+    restart: always
+
   erpnext:
     image: frappe/erpnext:v15
-    container_name: erpnext_test
+    container_name: erpnext
+    depends_on:
+      - mariadb
+      - redis
     ports:
       - "8000:8000"
     volumes:
       - sites:/home/frappe/frappe-bench/sites
     command: >
       bash -c "
-      if [ ! -d sites/test.local ]; then
-        bench new-site test.local
+      bench new-site test.local
         --admin-password admin
-        --db-root-password root;
-        bench --site test.local install-app erpnext;
-        bench --site test.local install-app education;
-      fi;
-      bench start
+        --db-root-password root
+        --mariadb-host mariadb;
+      bench --site test.local install-app erpnext;
+      bench --site test.local install-app education;
+      bench start --host 0.0.0.0
       "
 
 volumes:
+  mariadb-data:
   sites:
